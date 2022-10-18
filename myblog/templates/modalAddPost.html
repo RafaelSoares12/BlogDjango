@@ -1,0 +1,155 @@
+{% load static %}
+<link href="{% static  'proseletivo/css/style.css' %}" rel="stylesheet">
+<!-- Modal -->
+<div class="modal  modal-edit fade" id="criarProcessoSeletivoModal" tabindex="-1" role="dialog"
+     aria-labelledby="exampleModalCenterTitle"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg " role="document">
+        <div class="modal-content modal-edit-content rounded-2 ">
+            <div class="modal-header modal-edit-header rounded-2" style="border: none;">
+                <!-- <i class="fa-solid fa-circle-info fa-xs pl-2 "></i> -->
+                <h5 class="modal-title titulo-modal text-center ">Criar Processo Seletivo </h5>
+                <a href="#" class="close-btn close-x" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true"><i class="fa-solid fa-xmark"></i></span>
+                </a>
+            </div>
+            <div id="mensagens"></div>
+            <div class="modal-body p-4 px-5 ">
+                <input type="hidden" id="url" value=" {% url 'seletivo:create-proseletivo' %}">
+                <input type="hidden" id="user" value="{{ user }}">
+                <div>
+                    <label for="nomeprocesso" class="form-label form-edit-label pl-2 pt-2 font-weight-bold">Nome do
+                        Processo</label>
+                    <input type="text" class="form-control" id="processonomeinsert" placeholder="Nome do Processo"
+                           aria-label="Processo"
+                           aria-describedby="basic-addon1">
+                </div>
+
+                <div class="mt-2">
+                    <label for="setor" class="form-label form-edit-label pl-2 pt-2 font-weight-bold">Setor</label>
+                    <select class="buscasetor form-control" id="buscasetor"></select>
+                    <!--                    <select class="form-control" id="setorinsert">-->
+                    <!--                        -->
+                    <!--                        {% for x in setores %}-->
+                    <!--                        <option value={{ x.id }}>{{ x.nomeSetor }}</option>-->
+                    <!--                        {% endfor %}-->
+                    <!--                    </select>-->
+                </div>
+                {% csrf_token %}
+                <div class="mt-2">
+                    <label for="emailcontato" class="form-label form-edit-label pl-2 pt-2 font-weight-bold">Email de
+                        Contato</label>
+                    <input type="text" class="form-control" id="emailinsert" placeholder="Email" aria-label="Email"
+                           aria-describedby="basic-addon1">
+                </div>
+
+                <div class="mt-2">
+                    <label for="processo" class="form-label form-edit-label pl-2 pt-2 font-weight-bold">Modelo do
+                        Processo</label>
+                    <select class="buscaprocesso form-control" id="buscaprocesso" style="width: 80%"></select>
+                    <!--                    <select class="form-control" id="modeloinsert">-->
+                    <!--                        {% for x in processoseletivo_list %}-->
+                    <!--                        <option value={{ x.id }}>{{ x.nome }}</option>-->
+                    <!--                        {% endfor %}-->
+                    <!--                    </select>-->
+                </div>
+
+                <div class="mt-4" id="copiaropcoes">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" name="opcoes" type="checkbox" id="copiarorganizadores"
+                               value="1">
+                        <label class="form-check-label" for="copiarorganizadores">Copiar Organizadores</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" name="opcoes" type="checkbox" id="copiaravaliadores" value="2">
+                        <label class="form-check-label" for="copiaravaliadores">Copiar Avaliadores</label>
+                    </div>
+                </div>
+                <!--
+                                <div class="mt-2 d-flex justify-content-end">
+                                    <button type="button" id="criarproseletivo" class="btn btn-success">Adicionar</button>
+                                </div> -->
+                <div class="d-flex pt-3">
+                    <div class="mx-auto">
+                        <a href="#" class="btn btn-primary close-btn btn-modal rounded-1" data-dismiss="modal"
+                           aria-label="Close">Cancelar</a>
+                        <button type="button" id="criarproseletivo" class="btn btn-primary btn-modal rounded-1">Enviar
+                        </button>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block static_js %}
+<script src="{% static 'seletivo/js/CreateProSeletivoModal.js' %}"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        let htmlBuscaSetor = $('#buscasetor')
+        htmlBuscaSetor.select2({
+            minimumInputLength: 3,
+            placeholder: "Insira o nome de um setor",
+            ajax: {
+                url: '{% url "seletivo:get-setor" %}',
+                dataType: 'json',
+                type: "GET",
+                delay: 250,
+                allowClear: true,
+                data: function (params) {
+                    return {
+                        setor: params.term,
+                    }
+                },
+                processResults: function (response) {
+                    let retorno = parserAPISelectSetor(response)
+                    return {results: retorno}
+                },
+            },
+        })
+
+        let htmlBuscaProcesso = $('#buscaprocesso')
+        let user = document.getElementById("user").value;
+        htmlBuscaProcesso.select2({
+            minimumInputLength: 3,
+            placeholder: "Insira o nome de um processo",
+            ajax: {
+                url: '{% url "seletivo:get-processo" %}',
+                dataType: 'json',
+                type: "GET",
+                delay: 250,
+                allowClear: true,
+                data: function (params) {
+                    return {
+                        usuario: user,
+                        processo: params.term,
+                    }
+                },
+                processResults: function (response) {
+                    let retorno = parserAPISelectProcesso(response)
+                    return {results: retorno}
+                },
+            },
+        })
+
+
+    });
+
+    function parserAPISelectSetor(response) {
+        return $.map(response, function (val, i) {
+            return {'id': val.id, 'text': val.nomeSetor}
+        });
+    }
+
+    function parserAPISelectProcesso(response) {
+        return $.map(response, function (val, i) {
+            return {'id': val.id, 'text': val.nome}
+        });
+    }
+</script>
+{% endblock %}
