@@ -2,7 +2,7 @@
 <ul>
     <li>
         {% for post in object_list %}
-        <a href="{% url 'article-detail' post.pk %}">
+        <a href="{% url 'readMore' post.pk %}">
             {{post.title}}
         </a>
         <p>Escrito por: {{post.author.first_name}}</p>
