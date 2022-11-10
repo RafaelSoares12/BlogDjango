@@ -1,4 +1,24 @@
-<h1>Posts</h1>
+{% extends 'bootstrapBlogTemplate/index.html' %}
+{% load static %}
+
+{% block navbar %}
+    {% include 'bases/navbar.html' %}
+{% endblock%}
+
+{% block header %}
+    {% include 'bases/header.html' %}
+{% endblock %}
+
+{% block content %}
+    {% include 'bases/content.html' %}
+{% endblock %}
+
+{% block footer %}
+    {% include 'bases/footer.html' %}
+{% endblock %}
+
+
+<!-- <h1>Posts</h1>
 <ul>
     <li>
         {% for post in object_list %}
@@ -9,4 +29,4 @@
             {{post.body}}
         {% endfor%}
     </li>
-</ul>
+</ul> -->
